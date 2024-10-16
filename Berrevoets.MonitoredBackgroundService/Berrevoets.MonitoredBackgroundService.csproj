@@ -13,12 +13,19 @@
 		<RepositoryUrl>https://github.com/bberrevoets/MonitoredBackgroundService</RepositoryUrl>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<!-- Add License Information -->
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile> <!-- This should match the filename you use -->
+		<LicenseExpression>GNU GPLv3</LicenseExpression> <!-- Use a SPDX identifier like MIT, Apache-2.0, etc. -->
 	</PropertyGroup>
 
 	<ItemGroup>
 		<None Update="readme.md">
 			<Pack>true</Pack>
 			<PackagePath>readme.md</PackagePath>
+		</None>
+		<None Update="LICENSE">
+			<Pack>true</Pack>
+			<PackagePath>LICENSE.txt</PackagePath>
 		</None>
 	</ItemGroup>
 
