@@ -23,7 +23,7 @@
 			<Pack>true</Pack>
 			<PackagePath>readme.md</PackagePath>
 		</None>
-		<None Update="LICENSE">
+		<None Update="LICENSE.txt">
 			<Pack>true</Pack>
 			<PackagePath>LICENSE.txt</PackagePath>
 		</None>
