@@ -47,11 +47,14 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build the solution
-      run: dotnet build --configuration Release --no-restore
+    - name: Extract version from .csproj and append -preview
+      id: extract-version
+      run: |
+        VERSION=$(dotnet msbuild -nologo -target:GetAssemblyVersion -property:Version -v:q -nologo Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj | tail -n 1)
+        echo "##[set-output name=VERSION;]${VERSION}-preview"
 
     - name: Pack Preview NuGet package (with symbols)
-      run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:PackageVersion=$(git describe --tags --abbrev=0)-preview /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
+      run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:PackageVersion=${{ steps.extract-version.outputs.VERSION }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
 
     - name: Publish Preview NuGet package
       env:
