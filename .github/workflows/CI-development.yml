@@ -50,8 +50,10 @@ jobs:
     - name: Extract version from .csproj and append -preview
       id: extract-version
       run: |
-        VERSION=$(dotnet msbuild -nologo -target:GetAssemblyVersion -property:Version -v:q -nologo Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj | tail -n 1)
-        echo "##[set-output name=VERSION;]${VERSION}-preview"
+        $version = (dotnet msbuild -nologo -property:Version Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj | Select-String -Pattern "([0-9]+\.[0-9]+\.[0-9]+)" | ForEach-Object { $_.Matches[0].Value })
+        echo "Version extracted: $version-preview"
+        echo "##[set-output name=VERSION;]$version-preview"
+
 
     - name: Pack Preview NuGet package (with symbols)
       run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:PackageVersion=${{ steps.extract-version.outputs.VERSION }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
