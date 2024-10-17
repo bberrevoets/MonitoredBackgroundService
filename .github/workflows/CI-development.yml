@@ -51,13 +51,14 @@ jobs:
       id: extract-version
       shell: bash
       run: |
-        VERSION=$(dotnet msbuild -nologo -property:Version Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
+        VERSION=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj)
         if [ -z "$VERSION" ]; then
           echo "Error: Version could not be extracted."
           exit 1
         fi
         echo "Version extracted: $VERSION-preview"
         echo "VERSION=$VERSION-preview" >> $GITHUB_ENV
+
 
     - name: Pack Preview NuGet package (with symbols)
       run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:PackageVersion=${{ env.VERSION }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
