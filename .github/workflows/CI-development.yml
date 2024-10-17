@@ -1,5 +1,5 @@
 name: Build and Publish Preview NuGet Package
- 
+
 on:
   push:
     branches:
@@ -35,6 +35,10 @@ jobs:
         fi
         echo "Version extracted: $VERSION-preview"
         echo "VERSION=$VERSION-preview" >> $GITHUB_ENV
+        echo "VERSION=$VERSION-preview" > version.txt
+      # Save version to be used in other jobs
+      outputs:
+        version: ${{ steps.extract-version.outputs.VERSION }}
 
     - name: Build the solution (Release)
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
@@ -43,7 +47,6 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
 
   publish:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/Development'
     needs: build
     runs-on: windows-latest
 
@@ -58,6 +61,11 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
+
+    - name: Download version artifact
+      run: |
+        VERSION=$(cat version.txt)
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
     - name: Build the solution (Release) again for packaging
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
