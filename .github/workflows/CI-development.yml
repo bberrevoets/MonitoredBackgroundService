@@ -24,8 +24,20 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build the solution
-      run: dotnet build --configuration Release --no-restore
+    - name: Extract version from .csproj and append -preview
+      id: extract-version
+      shell: bash
+      run: |
+        VERSION=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj)
+        if [ -z "$VERSION" ]; then
+          echo "Error: Version could not be extracted."
+          exit 1
+        fi
+        echo "Version extracted: $VERSION-preview"
+        echo "VERSION=$VERSION-preview" >> $GITHUB_ENV
+
+    - name: Build the solution (Release)
+      run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
 
     - name: Run tests
       run: dotnet test --no-restore --verbosity normal
@@ -47,18 +59,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Extract version from .csproj and append -preview
-      id: extract-version
-      shell: bash
-      run: |
-        VERSION=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj)
-        if [ -z "$VERSION" ]; then
-          echo "Error: Version could not be extracted."
-          exit 1
-        fi
-        echo "Version extracted: $VERSION-preview"
-        echo "VERSION=$VERSION-preview" >> $GITHUB_ENV
-
+    - name: Build the solution (Release) again for packaging
+      run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
 
     - name: Pack Preview NuGet package (with symbols)
       run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:PackageVersion=${{ env.VERSION }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
