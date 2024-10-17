@@ -22,7 +22,7 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x' # Adjust according to your project's target framework
+        dotnet-version: '8.0.x'
 
     - name: Restore dependencies
       run: dotnet restore
@@ -56,7 +56,7 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x' # Adjust according to your project's target framework
+        dotnet-version: '8.0.x'
 
     - name: Restore dependencies
       run: dotnet restore
@@ -68,7 +68,7 @@ jobs:
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
 
     - name: Pack Preview NuGet package (with symbols)
-      run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:PackageVersion=${{ env.VERSION }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
+      run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:PackageVersion=$VERSION /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
 
     - name: Publish Preview NuGet package
       env:
