@@ -1,4 +1,5 @@
 ﻿using Berrevoets.Interfaces;
+using Berrevoets.MonitoredBackgroundService.Interfaces;
 
 namespace HealthTests;
 
@@ -22,13 +23,18 @@ public class HealthMonitorWorker : BackgroundService
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             foreach (var monitorable in _healthMonitorables)
             {
-                if (monitorable.MonitorHealth())
+                var healthStatus = monitorable.MonitorHealth();
+                if (healthStatus == HealthStatus.Healthy)
                 {
-                    _logger.LogInformation("All monitored services are healthy.");
+                    Console.WriteLine("All systems are healthy.");
+                }
+                else if (healthStatus == HealthStatus.Degraded)
+                {
+                    Console.WriteLine("Some tasks are taking longer than expected.");
                 }
                 else
                 {
-                    _logger.LogWarning("A monitored service is not healthy!");
+                    Console.WriteLine("Some tasks are unhealthy.");
                 }
             }
 

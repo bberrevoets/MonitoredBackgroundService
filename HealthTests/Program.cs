@@ -4,15 +4,13 @@ using HealthTests;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddJsonFile("appsettings.json", true, true);
 builder.Services.Configure<WorkerOptions>(builder.Configuration.GetSection("WorkerOptions"));
 
-builder.Services.AddMonitoredWorker<MyWorker>(options =>
-{
-    options.NumberOfTasks = 2;
-});
+builder.Services.AddMonitoredWorker<MyWorker>(options => { options.NumberOfTasks = 2; });
 
-//builder.Services.AddMonitoredWorker<MyWorker>(builder.Configuration);
+// Or use this instead of the previous way of adding the worker
+// builder.Services.AddMonitoredWorker<MyWorker>(builder.Configuration);
 
 builder.Services.AddHostedService<HealthMonitorWorker>();
 

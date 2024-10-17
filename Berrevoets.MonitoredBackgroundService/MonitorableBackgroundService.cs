@@ -1,4 +1,5 @@
 ﻿using Berrevoets.Interfaces;
+using Berrevoets.MonitoredBackgroundService.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,38 +24,52 @@ public abstract class MonitorableBackgroundService : BackgroundService, IHealthM
 
     #region Implementation of IHealthMonitorable
 
-    public bool MonitorHealth()
+    public HealthStatus MonitorHealth()
     {
-        var isHealthy = true;
         var currentTime = DateTime.UtcNow;
+        var healthStatus = HealthStatus.Healthy;
 
         foreach (var task in _tasks)
+        {
             switch (task.Status)
             {
                 case TaskStatus.Faulted:
-                    isHealthy = false;
-                    _logger.LogError("Task {TaskId} has faulted.", task.Id);
-                    break;
                 case TaskStatus.Canceled:
-                    isHealthy = false;
-                    _logger.LogWarning("Task {TaskId} was canceled.", task.Id);
+                    healthStatus = HealthStatus.Unhealthy;
+                    _logger.LogError("Task {TaskId} has faulted or was canceled.", task.Id);
                     break;
+
                 default:
-                {
-                    if (_taskLastExecution.ContainsKey(task.Id) &&
-                        (currentTime - _taskLastExecution[task.Id]).TotalSeconds > 120)
+                    if (_taskLastExecution.ContainsKey(task.Id))
                     {
-                        isHealthy = false;
-                        _logger.LogWarning("Task {TaskId} has not reported activity for over 120 seconds.", task.Id);
+                        var taskDuration = currentTime - _taskLastExecution[task.Id];
+
+                        if (taskDuration > Options.MaxTaskDuration)
+                        {
+                            healthStatus = HealthStatus.Unhealthy;
+                            _logger.LogWarning(
+                                "Task {TaskId} has exceeded the maximum allowed duration of {MaxTaskDuration}.",
+                                task.Id, Options.MaxTaskDuration);
+                        }
+                        else if (taskDuration > Options.MaxTaskDuration / 2)
+                        {
+                            // Task is taking longer than half the MaxTaskDuration
+                            if (healthStatus != HealthStatus.Unhealthy) healthStatus = HealthStatus.Degraded;
+                            _logger.LogWarning("Task {TaskId} is taking longer than expected (Degraded state).",
+                                task.Id);
+                        }
                     }
 
                     break;
-                }
             }
 
-        _logger.LogInformation("Health check result: {isHealthy}", isHealthy);
+            // If a task is unhealthy, we can break early to avoid further checks
+            if (healthStatus == HealthStatus.Unhealthy) break;
+        }
 
-        return isHealthy;
+        _logger.LogInformation("Health check result: {HealthStatus}", healthStatus);
+
+        return healthStatus;
     }
 
     #endregion
