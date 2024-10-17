@@ -3,10 +3,10 @@ name: Build and Publish Preview NuGet Package
 on:
   push:
     branches:
-      - development
+      - Development
   pull_request:
     branches:
-      - development
+      - Development
 
 jobs:
   build:
@@ -31,7 +31,7 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
 
   publish:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/development'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/Development'
     needs: build
     runs-on: windows-latest
 
@@ -50,10 +50,15 @@ jobs:
     - name: Build the solution
       run: dotnet build --configuration Release --no-restore
 
-    - name: Pack Preview NuGet package
-      run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:PackageVersion=$(git describe --tags --abbrev=0)-preview
+    - name: Pack Preview NuGet package (with symbols)
+      run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:PackageVersion=$(git describe --tags --abbrev=0)-preview /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
 
     - name: Publish Preview NuGet package
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: dotnet nuget push "${{ github.workspace }}\output\*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+    - name: Publish Symbol Package (.snupkg)
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push "${{ github.workspace }}\output\*.snupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
