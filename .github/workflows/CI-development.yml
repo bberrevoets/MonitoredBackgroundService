@@ -12,6 +12,9 @@ jobs:
   build:
     runs-on: windows-latest
 
+    outputs:
+      version: ${{ steps.extract-version.outputs.version }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -34,11 +37,7 @@ jobs:
           exit 1
         fi
         echo "Version extracted: $VERSION-preview"
-        echo "VERSION=$VERSION-preview" >> $GITHUB_ENV
-        echo "VERSION=$VERSION-preview" > version.txt
-      # Save version to be used in other jobs
-      outputs:
-        version: ${{ steps.extract-version.outputs.VERSION }}
+        echo "::set-output name=version::$VERSION-preview"
 
     - name: Build the solution (Release)
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
@@ -62,10 +61,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Download version artifact
-      run: |
-        VERSION=$(cat version.txt)
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
+    - name: Use extracted version from build job
+      run: echo "VERSION=${{ needs.build.outputs.version }}" >> $GITHUB_ENV
 
     - name: Build the solution (Release) again for packaging
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
