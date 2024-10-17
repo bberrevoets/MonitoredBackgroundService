@@ -1,6 +1,8 @@
-﻿namespace Berrevoets.Interfaces;
+﻿using Berrevoets.MonitoredBackgroundService.Interfaces;
+
+namespace Berrevoets.Interfaces;
 
 public interface IHealthMonitorable
 {
-    bool MonitorHealth();
+    HealthStatus MonitorHealth();
 }
