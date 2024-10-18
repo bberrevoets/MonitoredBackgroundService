@@ -36,7 +36,6 @@ jobs:
         fi
         VERSION="$VERSION-preview"
         echo "Version extracted: $VERSION"
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "::set-output name=version::$VERSION"
 
     - name: Build the solution (Release)
@@ -62,9 +61,9 @@ jobs:
 
     - name: Use extracted version from build job
       run: |
-        echo "VERSION=${{ needs.build.outputs.version }}" >> $GITHUB_ENV
-        echo "VERSION=${{ env.VERSION }}"
-      shell: bash
+        VERSION="${{ needs.build.outputs.version }}"
+        echo "VERSION=$VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
     - name: Build the solution (Release) again for packaging
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
@@ -72,14 +71,14 @@ jobs:
     - name: Pack Preview NuGet package (with symbols)
       run: |
         echo "Packing NuGet package with version: $VERSION"
-        dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}/output" /p:PackageVersion=${{ env.VERSION }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
+        dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "./output" /p:PackageVersion=$VERSION /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
 
     - name: Publish Preview NuGet package
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: dotnet nuget push "${{ github.workspace }}/output/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      run: dotnet nuget push "./output/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
     - name: Publish Symbol Package (.snupkg)
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: dotnet nuget push "${{ github.workspace }}/output/*.snupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      run: dotnet nuget push "./output/*.snupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
