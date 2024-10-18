@@ -60,10 +60,14 @@ jobs:
       run: dotnet restore
 
     - name: Use extracted version from build job
-      run: echo "VERSION=${{ needs.build.outputs.version }}" >> $GITHUB_ENV
+      run: |
+        echo "VERSION=${{ needs.build.outputs.version }}" >> $GITHUB_ENV
+        echo "Version set to: $VERSION"
 
     - name: Build the solution (Release) again for packaging
-      run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release /p:PackageVersion=$VERSION
+      run: |
+        echo "Building NuGet package with version: $VERSION"
+        dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release /p:PackageVersion=$VERSION
 
     - name: Pack Preview NuGet package (with symbols)
       run: |
