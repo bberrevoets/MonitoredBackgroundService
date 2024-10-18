@@ -36,7 +36,7 @@ jobs:
         fi
         VERSION="$VERSION-preview"
         echo "Version extracted: $VERSION"
-        echo "version=$VERSION" >> $GITHUB_ENV
+        echo "::set-output name=version::$VERSION"
 
     - name: Build the solution (Release)
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
@@ -59,17 +59,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Extract version from .csproj and append -preview
-      id: extract-version
-      shell: bash
-      run: |
-        VERSION=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj)
-        if [ -z "$VERSION" ]; then
-          echo "Error: Version could not be extracted."
-          exit 1
-        fi
-        VERSION="$VERSION-preview"
-        echo "Version extracted: $VERSION"
+    - name: Use extracted version from build job
+      run: echo "VERSION=${{ needs.build.outputs.version }}" >> $GITHUB_ENV
 
     - name: Build the solution (Release) again for packaging
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release /p:PackageVersion=$VERSION
