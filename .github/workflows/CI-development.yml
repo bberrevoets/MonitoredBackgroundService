@@ -73,7 +73,7 @@ jobs:
         echo "version=$VERSION" >> $GITHUB_ENV
 
     - name: Build the solution (Release) again for packaging
-      run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
+      run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release /p:PackageVersion=$VERSION
 
     - name: Pack Preview NuGet package (with symbols)
       run: |
