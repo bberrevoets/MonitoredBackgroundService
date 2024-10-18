@@ -70,7 +70,6 @@ jobs:
         fi
         VERSION="$VERSION-preview"
         echo "Version extracted: $VERSION"
-        echo "version=$VERSION" >> $GITHUB_ENV
 
     - name: Build the solution (Release) again for packaging
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release /p:PackageVersion=$VERSION
