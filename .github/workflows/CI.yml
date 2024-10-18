@@ -1,4 +1,4 @@
-name: Build and Publish NuGet Package
+name: Build and Publish Final NuGet Package
 
 on:
   push:
@@ -50,10 +50,15 @@ jobs:
     - name: Build the solution
       run: dotnet build --configuration Release --no-restore
 
-    - name: Pack NuGet package
-      run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output"
+    - name: Pack Final NuGet package (with symbols)
+      run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
 
-    - name: Publish NuGet package
+    - name: Publish Final NuGet package
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: dotnet nuget push "${{ github.workspace }}\output\*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+
+    - name: Publish Symbol Package (.snupkg)
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push "${{ github.workspace }}\output\*.snupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
