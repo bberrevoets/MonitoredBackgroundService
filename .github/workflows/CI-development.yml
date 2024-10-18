@@ -62,21 +62,24 @@ jobs:
 
     - name: Use extracted version from build job
       run: |
-        echo "VERSION=${{ needs.build.outputs.version }}"
         echo "VERSION=${{ needs.build.outputs.version }}" >> $GITHUB_ENV
+        echo "VERSION=${{ env.VERSION }}"
+      shell: bash
 
     - name: Build the solution (Release) again for packaging
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
 
     - name: Pack Preview NuGet package (with symbols)
-      run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:PackageVersion=${{ env.VERSION }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
+      run: |
+        echo "Packing NuGet package with version: $VERSION"
+        dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}/output" /p:PackageVersion=${{ env.VERSION }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
 
     - name: Publish Preview NuGet package
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: dotnet nuget push "${{ github.workspace }}\output\*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      run: dotnet nuget push "${{ github.workspace }}/output/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
     - name: Publish Symbol Package (.snupkg)
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: dotnet nuget push "${{ github.workspace }}\output\*.snupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      run: dotnet nuget push "${{ github.workspace }}/output/*.snupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
