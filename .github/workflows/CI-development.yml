@@ -60,9 +60,7 @@ jobs:
       run: dotnet restore
 
     - name: Use extracted version from build job
-      run: |
-        echo "VERSION=${{ needs.build.outputs.version }}" >> $GITHUB_ENV
-        echo "VERSION=${{ needs.build.outputs.version }}"
+      run: echo "VERSION=${{ needs.build.outputs.version }}" >> $GITHUB_ENV
 
     - name: Build the solution (Release) again for packaging
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
