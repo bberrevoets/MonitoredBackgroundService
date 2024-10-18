@@ -61,17 +61,17 @@ jobs:
 
     - name: Use extracted version from build job
       run: |
-        VERSION="${{ needs.build.outputs.version }}"
-        echo "VERSION=$VERSION"
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
+          $env:VERSION = "${{ needs.build.outputs.version }}"
+          echo "VERSION=$env:VERSION"
+          echo "VERSION=$env:VERSION" >> $GITHUB_ENV
 
     - name: Build the solution (Release) again for packaging
       run: dotnet build Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release
 
     - name: Pack Preview NuGet package (with symbols)
       run: |
-        echo "Packing NuGet package with version: $VERSION"
-        dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "./output" /p:PackageVersion=$VERSION /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
+        echo "Packing NuGet package with version: $env:VERSION"
+        dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "./output" /p:PackageVersion=$env:VERSION /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
 
     - name: Publish Preview NuGet package
       env:
