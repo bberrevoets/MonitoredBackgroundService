@@ -57,7 +57,7 @@ jobs:
         fi
         VERSION="$VERSION-preview"
         echo "Version extracted: $VERSION"
-        echo "::set-output name=version::$VERSION"
+        echo "{name}={value}" >> $GITHUB_ENV
 
     - name: Build the solution (Release) again for packaging
       run: |
