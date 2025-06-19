@@ -1,4 +1,4 @@
-using Berrevoets;
+using Berrevoets.MonitoredBackgroundService;
 using Microsoft.Extensions.Options;
 
 namespace HealthTests;
@@ -12,14 +12,14 @@ public class MyWorker : MonitorableBackgroundService
 
     protected override async Task DoWork(int taskId)
     {
-        while (!_stoppingToken.IsCancellationRequested)
+        while (!StoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("Worker {taskId} running at: {time}", taskId, DateTimeOffset.Now);
+            Logger.LogInformation("Worker {taskId} running at: {time}", taskId, DateTimeOffset.Now);
 
             LogTaskInformation(taskId);
             UpdateTaskExecutionTime(taskId);
 
-            await Task.Delay(1000, _stoppingToken);
+            await Task.Delay(1000, StoppingToken);
         }
     }
 }
