@@ -1,5 +1,4 @@
-using Berrevoets;
-using Berrevoets.Extensions;
+using Berrevoets.MonitoredBackgroundService;
 using HealthTests;
 
 var builder = Host.CreateApplicationBuilder(args);
