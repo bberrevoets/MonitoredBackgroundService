@@ -18,7 +18,7 @@ namespace Berrevoets.MonitoredBackgroundService;
 public abstract class MonitorableBackgroundService : BackgroundService, IHealthMonitorable
 {
     private readonly Dictionary<int, DateTime> _taskLastExecution = new();
-    private readonly List<Task> _tasks = [];
+    private readonly List<Task> _tasks = new List<Task>();
     protected readonly ILogger Logger;
     private int _taskCounter;
     protected CancellationToken StoppingToken;
