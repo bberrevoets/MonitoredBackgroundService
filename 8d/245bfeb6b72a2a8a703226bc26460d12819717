@@ -1,0 +1,42 @@
+README.md
+  s_10a83e7adf2f59::t_2357d6d2a0907a 3-5,7
+  s_10a83e7adf2f59::t_e978064ce5c74e 10-28
+AGENTS.md
+  s_10a83e7adf2f59::t_4bdca514f97ea7 41-45,47-100
+  s_10a83e7adf2f59::t_90591d3ef91d1c 46
+  s_10a83e7adf2f59::t_aa5591403f751b 38-40
+  s_10a83e7adf2f59::t_828813903187ea 1-37
+CHANGELOG.md
+  s_10a83e7adf2f59::t_e612906e094841 23
+  s_10a83e7adf2f59::t_af48f1111b02c4 68
+  s_10a83e7adf2f59::t_697f22b3aef4f5 5-22,24-50,52-67,69-95
+  s_10a83e7adf2f59::t_59f0ac54c29198 51
+  s_10a83e7adf2f59::t_8c84dce804dabe 2-4
+  s_10a83e7adf2f59::t_51f9e889dfcc0a 1
+.gitattributes
+  s_10a83e7adf2f59::t_30eca5b08e99e1 15-18
+  s_10a83e7adf2f59::t_81a5a1049fe3f7 12-14
+  s_10a83e7adf2f59::t_94a053ae43ff0d 1-11
+.gitignore
+  s_10a83e7adf2f59::t_d3c9526bf43801 398-409
+.markdownlint.json
+  s_10a83e7adf2f59::t_a1e7bd3d804851 1-11
+CLAUDE.md
+  s_10a83e7adf2f59::t_4bf915136a2702 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8d245bfeb6b72a2a8a703226bc26460d12819717",
+  "prompts": {},
+  "sessions": {
+    "s_10a83e7adf2f59": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "08a27e38-8541-4ab8-b49b-b397f72acfdc",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "B.N. Berrevoets <bert@berrevoets.net>"
+    }
+  }
+}
