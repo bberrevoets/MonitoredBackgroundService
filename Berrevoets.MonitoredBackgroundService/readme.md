@@ -4,7 +4,8 @@ A library for creating monitored background services with health checks and task
 
 ## Overview
 
-`Berrevoets.MonitoredBackgroundService` provides a base class and utilities to simplify the creation of background services that require health monitoring and task management. It allows you to:
+`Berrevoets.MonitoredBackgroundService` provides a base class and utilities to simplify the creation of background services that require health
+monitoring and task management. It allows you to:
 
 - Create background services that run multiple tasks.
 - Monitor the health of these tasks using customizable health checks.
@@ -54,7 +55,7 @@ First, define your `appsettings.json` to include the `WorkerOptions` settings:
 Inherit from `MonitorableBackgroundService` to create your custom worker:
 
 ```csharp
-using Berrevoets;
+using Berrevoets.MonitoredBackgroundService;
 using Microsoft.Extensions.Options;
 
 namespace YourNamespace;
@@ -68,13 +69,13 @@ public class MyWorker : MonitorableBackgroundService
 
     protected override async Task DoWork(int taskId)
     {
-        while (!_stoppingToken.IsCancellationRequested)
+        while (!StoppingToken.IsCancellationRequested)
         {
             LogTaskInformation(taskId);
             UpdateTaskExecutionTime(taskId);
 
             // Your custom task logic here
-            await Task.Delay(1000, _stoppingToken);
+            await Task.Delay(1000, StoppingToken);
         }
     }
 }
@@ -89,7 +90,7 @@ public class MyWorker : MonitorableBackgroundService
 Create a worker to monitor the health of your tasks:
 
 ```csharp
-using Berrevoets.Interfaces;
+using Berrevoets.MonitoredBackgroundService.Interfaces;
 using Microsoft.Extensions.Hosting;
 
 namespace YourNamespace;
@@ -142,10 +143,10 @@ public class HealthMonitorWorker : BackgroundService
 In your `Program.cs`, configure the services and workers:
 
 ```csharp
-using Berrevoets;
-using Berrevoets.Extensions;
+using Berrevoets.MonitoredBackgroundService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using YourNamespace;
 
 var builder = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((hostingContext, config) =>
@@ -168,17 +169,19 @@ await builder.RunConsoleAsync();
 ```
 
 - **`AddMonitoredWorker<TWorker>`**: Extension method to register your worker with health monitoring.
-    - Can accept configuration from `appsettings.json` or inline options.
-    - Example with inline options:
+  - Can accept configuration from `appsettings.json` or inline options.
+  - Example with inline options:
 
-      ```csharp
-      services.AddMonitoredWorker<MyWorker>(options =>
-      {
-          options.NumberOfTasks = 2;
-          options.MaxTaskDuration = TimeSpan.FromMinutes(2);
-      });
-      ```
-      
+    ```csharp
+    services.AddMonitoredWorker<MyWorker>(options =>
+    {
+        options.NumberOfTasks = 2;
+    });
+    ```
+
+  - `MaxTaskDuration` is an init-only property, so the inline delegate cannot change it; set it in `appsettings.json`
+    (the default is 2 minutes).
+
 ### 5. Running the Application
 
 Run your application, and you should see logs indicating the status of your tasks and any health issues detected by the monitor.
@@ -232,7 +235,8 @@ Contributions are welcome! Please submit a pull request or open an issue to disc
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/bberrevoets/MonitoredBackgroundService/blob/main/LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0. See the
+[LICENSE.txt](https://github.com/bberrevoets/MonitoredBackgroundService/blob/main/Berrevoets.MonitoredBackgroundService/LICENSE.txt) file for details.
 
 ## Acknowledgments
 
@@ -240,7 +244,7 @@ This project is licensed under the MIT License. See the [LICENSE](https://github
 
 ## Contact
 
-For questions or support, please contact [Bert Berrevoets](mailto:your-email@example.com).
+For questions or support, please contact [Bert Berrevoets](mailto:bert@berrevoets.net).
 
 ---
 
