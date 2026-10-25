@@ -74,10 +74,14 @@ npx markdownlint-cli2 "**/*.md"
 ## Conventions
 
 - **Releasing:** bump `<Version>` in the library's `.csproj` in the PR. After the merge, CI pushes the `.nupkg` and
-  `.snupkg` to NuGet.org with the repository secret `NUGET_API_KEY`; without a bump the push is skipped
-  (`--skip-duplicate`). NuGet.org API keys expire (365 days at most); the secret was last set on 2025-10-21. The
-  `x.y.z-preview` packages came from the old `Development` branch and stopped with the move to GitHub Flow
-  (2026-10-25).
+  `.snupkg` to NuGet.org; without a bump the push is skipped (`--skip-duplicate`). The `x.y.z-preview` packages came
+  from the old `Development` branch and stopped with the move to GitHub Flow (2026-10-25).
+- **Trusted Publishing, no API key:** the `publish` job gets a NuGet API key valid for 1 hour from `NuGet/login`
+  (GitHub OIDC, `id-token: write`). It works only through the policy on nuget.org (account `bberrevoets` → Trusted
+  Publishing): repository `bberrevoets/MonitoredBackgroundService`, workflow file `CI.yml`, no environment, scope
+  "push only new package versions" of `Berrevoets.MonitoredBackgroundService`. Renaming `CI.yml`, moving the push to
+  another workflow, adding a GitHub environment or renaming the repository breaks publishing until the policy is
+  updated to match. Never add a stored `NUGET_API_KEY` secret again.
 - **Unreleased breaking changes:** commit `2a7f41b` (2025-06-19) renamed the namespaces (`Berrevoets`,
   `Berrevoets.Interfaces`, `Berrevoets.Extensions` → `Berrevoets.MonitoredBackgroundService` and
   `Berrevoets.MonitoredBackgroundService.Interfaces`) and the protected members (`_logger` → `Logger`,

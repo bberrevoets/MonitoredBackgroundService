@@ -33,6 +33,8 @@ Author: *Bert Berrevoets*
 - GitHub Flow (2026-10-25): `main` is the only branch and the default; the `Development` branch and its preview-package
   workflow (`CI-development.yml`, which published `x.y.z-preview` versions) are gone.
 - The README describes the library and links the documentation on `main`.
+- Publishing uses nuget.org Trusted Publishing (2026-10-25): the `publish` job in `CI.yml` gets a 1-hour API key via
+  GitHub OIDC (`NuGet/login`) instead of the stored `NUGET_API_KEY` secret, which had expired.
 
 ### Fixed
 
