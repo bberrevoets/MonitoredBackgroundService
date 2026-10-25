@@ -46,6 +46,11 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: windows-latest
+    # Trusted Publishing: no stored API key. A job with `permissions` gets nothing it does not list, so checkout
+    # needs `contents: read`; `id-token: write` lets NuGet/login request GitHub's OIDC token.
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
     - name: Checkout code
@@ -65,12 +70,16 @@ jobs:
     - name: Pack Final NuGet package (with symbols)
       run: dotnet pack Berrevoets.MonitoredBackgroundService/Berrevoets.MonitoredBackgroundService.csproj --configuration Release --output "${{ github.workspace }}\output" /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
 
+    # Exchanges the OIDC token for a NuGet API key that is valid for 1 hour (policy on nuget.org: owner bberrevoets,
+    # repository MonitoredBackgroundService, workflow CI.yml). Requested right before the pushes.
+    - name: NuGet login (OIDC, Trusted Publishing)
+      id: login
+      uses: NuGet/login@v1
+      with:
+        user: bberrevoets
+
     - name: Publish Final NuGet package
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: dotnet nuget push "${{ github.workspace }}\output\*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      run: dotnet nuget push "${{ github.workspace }}\output\*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
     - name: Publish Symbol Package (.snupkg)
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: dotnet nuget push "${{ github.workspace }}\output\*.snupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      run: dotnet nuget push "${{ github.workspace }}\output\*.snupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
